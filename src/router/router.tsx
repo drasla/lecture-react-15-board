@@ -15,7 +15,7 @@ const router = (currentUser: User | null) => createBrowserRouter([
         children: [
             { path: "/", element: <BoardList /> },
             { path: "/post/:id", element: <BoardDetail /> },
-            { path: "/post/write", element: <BoardWrite /> },
+            { path: "/post/write", element: <BoardWrite currentUser={currentUser} /> },
             { path: "/post/edit", element: <BoardEdit /> },
             { path: "/login", element: <Login /> },
             { path: "/register", element: <Register /> },
