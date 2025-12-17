@@ -1,53 +1,12 @@
 import { Link, useNavigate } from "react-router";
-import styled from "styled-components";
 import { ActionButton } from "../../styles/styles.tsx";
 import { useForm } from "react-hook-form";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase.ts";
 import { FirebaseError } from "firebase/app";
+import { Container, Form, Input, Switcher, Title } from "../../styles/auth.tsx";
 
-const Container = styled.div`
-    width: 100%;
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-`;
-
-const Title = styled.h1`
-    color: #333;
-    text-align: center;
-    margin-bottom: 20px;
-`;
-
-const Form = styled.form`
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    border: 1px solid #ddd;
-    padding: 20px;
-    border-radius: 4px;
-`;
-
-const Input = styled.input`
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-`;
-
-const Switcher = styled.p`
-    margin-top: 20px;
-    text-align: center;
-
-    a {
-        color: #3b82f6;
-    }
-`;
-
-type AuthFormType = {
+export type AuthFormType = {
     email: string;
     password: string;
 };
