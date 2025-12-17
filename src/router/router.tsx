@@ -7,10 +7,11 @@ import Login from "../pages/(auth)/Login.tsx";
 import Register from "../pages/(auth)/Register.tsx";
 import Layout from "../layouts/Layout.tsx";
 import ErrorPage from "../pages/ErrorPage.tsx";
+import type { User } from "firebase/auth";
 
-const router = createBrowserRouter([
+const router = (currentUser: User | null) => createBrowserRouter([
     {
-        element: <Layout />,
+        element: <Layout currentUser={currentUser}/>,
         children: [
             { path: "/", element: <BoardList /> },
             { path: "/post/:id", element: <BoardDetail /> },
