@@ -5,7 +5,7 @@ import type { PostType } from "../../types/post.ts";
 import { Container, Title } from "../../styles/auth.tsx";
 import styled from "styled-components";
 import { ActionButton } from "../../styles/styles.tsx";
-import { doc, getDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, increment, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase.ts";
 
 type Props = {
@@ -64,6 +64,9 @@ function BoardDetail({ currentUser }: Props) {
                     views: postData.views,
                     createdAt: postData.createdAt,
                 });
+
+                // 2. 조회수 증가 처리
+                await updateDoc(postRef, { views: increment(1) });
             } else {
                 alert("게시글을 찾을 수 없습니다.");
                 navigate("/");
@@ -72,6 +75,29 @@ function BoardDetail({ currentUser }: Props) {
             console.log(e);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const onDelete = async () => {
+        // 사용자에게 confirm을 통해 확인을 받고, 확인을 눌르면 삭제하고 사용자 이동
+        // const ok = confirm("정말로 이 게시글을 삭제하시겠습니까?")
+        //
+        // if (ok) {
+        //
+        // }
+        if (!id) return;
+
+        if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+            try {
+                // 삭제할 대상을 지정하고
+                const postRef = doc(db, "posts", id);
+                // 삭제 요청
+                await deleteDoc(postRef);
+                alert("게시글이 삭제되었습니다.");
+                navigate("/");
+            } catch (e) {
+                alert("삭제에 실패했습니다." + e);
+            }
         }
     };
 
@@ -111,7 +137,9 @@ function BoardDetail({ currentUser }: Props) {
                             <ActionButton>수정</ActionButton>
                         </Link>
 
-                        <ActionButton style={{ backgroundColor: "#dc3545" }}>삭제</ActionButton>
+                        <ActionButton style={{ backgroundColor: "#dc3545" }} onClick={onDelete}>
+                            삭제
+                        </ActionButton>
                     </>
                 )}
             </ButtonGroup>
