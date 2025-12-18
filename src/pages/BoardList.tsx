@@ -1,20 +1,11 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, orderBy, query, type Timestamp } from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { Container, Title } from "../styles/auth.tsx";
 import { Link } from "react-router";
 import { ActionButton } from "../styles/styles.tsx";
 import styled from "styled-components";
 import { db } from "../firebase.ts";
-
-type PostType = {
-    id: string;
-    title: string;
-    content: string;
-    userId: string;
-    username?: string;
-    createdAt: Timestamp;
-    views: number;
-};
+import type { PostType } from "../types/post.ts";
 
 const Table = styled.table`
     width: 100%;
@@ -48,7 +39,10 @@ function BoardList() {
             // 1. query 문을 작성
             // firestore에서 데이터를 검색해오는 명령(query)를 작성
             // query(콜렉션정보, 검색조건)
-            const querySnapshot = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+            const querySnapshot = query(
+                collection(db, "posts"),
+                orderBy("createdAt", "desc")
+            );
 
             // 2. 데이터를 요청하고
             const snapshot = await getDocs(querySnapshot);
