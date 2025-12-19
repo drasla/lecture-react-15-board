@@ -1,6 +1,10 @@
 import type { User } from "firebase/auth";
 import styled from "styled-components";
-import {ActionButton} from "../styles/styles.tsx";
+import { ActionButton } from "../styles/styles.tsx";
+import { useForm } from "react-hook-form";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
+import {db} from "../firebase.ts";
+import {useNavigate} from "react-router";
 
 type Props = {
     postId: string;
@@ -39,7 +43,7 @@ const Textarea = styled.textarea`
     border-radius: 4px;
     resize: none;
     height: 60px;
-    
+
     &:focus {
         outline: none;
         border-color: #007bff;
@@ -51,9 +55,49 @@ const ErrorMessage = styled.p`
     font-size: 14px;
 `;
 
-function CommentContainer({ postId, currentUser }: Props) {
+type CommentFormData = {
+    content: string;
+};
+
+function CommentContainer({ postId, currentUser}: Props) {
+    const navigate = useNavigate();
+
     // 1-1. 댓글을 작성하는 폼 만들기
     // 1-2. 폼데이터(textarea)를 submit할 때 firebase에 쓰는 핸들러(function) 만들기
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        reset,
+    } = useForm<CommentFormData>();
+
+    const onSubmit = async (data: CommentFormData) => {
+        if (!currentUser) return;
+        // 일반적인 컬렉션에 저장하는 것이 아니라,
+        // 그 posts 컬렉션의 하위 컬렉션인 comments 하위 컬렉션(sub collection)에 저장
+
+        try {
+            const newComment = {
+                content: data.content,
+                userId: currentUser.uid,
+                username: currentUser.email,
+                createdAt: Timestamp.now()
+            }
+
+            await addDoc(
+                collection(db,"posts", postId, "comments"),
+                newComment,
+            )
+            reset();   // 폼에 입력되어져 있는 값 초기화
+
+            // 임시로 화면을 갱신하여 등록한 코멘트가 나오는지 확인
+            navigate(0);
+        } catch (e) {
+            alert("댓글을 작성하지 못 했습니다.");
+            console.log(e);
+        }
+    }
 
     // 2-1. 댓글의 내용을 불러오기
     // 2-2. 댓글의 내용을 화면에 출력해주기
@@ -64,12 +108,21 @@ function CommentContainer({ postId, currentUser }: Props) {
     return (
         <Section>
             <CommentCount>댓글 0개</CommentCount>
-            <Form>
+            <Form onSubmit={handleSubmit(onSubmit)}>
                 <InputWrapper>
-                    <Textarea />
-                    <ActionButton>등록</ActionButton>
+                    <Textarea
+                        placeholder={"댓글을 입력해주세요"}
+                        disabled={!currentUser || isSubmitting}
+                        {...register("content", {
+                            required: "댓글 내용을 입력해주세요.",
+                            minLength: { value: 2, message: "최소 2글자 이상 입력해주세요." },
+                        })}
+                    />
+                    <ActionButton disabled={!currentUser || isSubmitting}>
+                        {isSubmitting ? "등록 중..." : "등록"}
+                    </ActionButton>
                 </InputWrapper>
-                <ErrorMessage>에러메세지자리</ErrorMessage>
+                {errors.content && <ErrorMessage>{errors.content.message}</ErrorMessage>}
             </Form>
         </Section>
     );
