@@ -35,6 +35,27 @@ const PaginationContainer = styled.div`
     margin-top: 20px;
 `;
 
+const PageButton = styled.button<{
+    $active?: boolean;
+}>`
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+
+    background-color: ${props => (props.$active ? "#007bff" : "#ffffff")};
+    color: ${props => (props.$active ? "#ffffff" : "#333333")};
+    font-weight: ${props => (props.$active ? "bold" : "normal")};
+
+    &:disabled {
+        background-color: #eee;
+        color: #ccc;
+        cursor: not-allowed;
+    }
+    
+`;
 
 const POSTS_PER_PAGE = 5;
 
@@ -123,6 +144,9 @@ function BoardList() {
         setCurrentPosts(slicedPosts);
     }, [allPosts, currentPage]);
 
+    const onPageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
 
     if (loading) {
         return <div>Loading...</div>;
@@ -155,7 +179,9 @@ function BoardList() {
                                 {/* 1페이지에서 첫번째 글이라면, 11번 */}
                                 {/* 2페이지에서 첫 번째 글이라면, 1페이지는 5개, 그 다음 6번 */}
                                 {/* 3페이지에서 첫 번째 글이라면, 1페이지는 5개니까, 총 10개가 빠지니까, 그 다음은 1번 */}
-                                <Td center={true}>{allPosts.length - ((currentPage - 1) * POSTS_PER_PAGE) - index}</Td>
+                                <Td center={true}>
+                                    {allPosts.length - (currentPage - 1) * POSTS_PER_PAGE - index}
+                                </Td>
                                 <Td>
                                     <Link to={`/post/${post.id}`}>{post.title}</Link>
                                 </Td>
@@ -177,7 +203,33 @@ function BoardList() {
             </Table>
 
             <PaginationContainer>
+                {/* 이전 버튼 */}
+                <PageButton
+                    onClick={() => onPageChange(currentPage - 1)}
+                    disabled={currentPage === 1}>
+                    &lt;
+                </PageButton>
 
+                {/* 페이지 번호를 출력해주는 버튼들 */}
+                {/* 1, 2, 3 */}
+                {/* array 에 대한 map을 통해 동일한 컴포넌트를 갯수만큼 뽑아주는 기능을 이용 */}
+                {/* 근데 array가 마련이 안되었음.
+                     => 원하는 요소 갯수만큼 빈 Array를 만드는 명령 : Array.from({ length: 숫자 }) */}
+                {Array.from({ length: totalPages }).map((_, index) => (
+                    <PageButton
+                        key={index}
+                        onClick={() => onPageChange(index + 1)}
+                        $active={index + 1 === currentPage}>
+                        {index + 1}
+                    </PageButton>
+                ))}
+
+                {/* 다음 버튼 */}
+                <PageButton
+                    onClick={() => onPageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}>
+                    &gt;
+                </PageButton>
             </PaginationContainer>
         </Container>
     );
