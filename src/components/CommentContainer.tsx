@@ -12,8 +12,8 @@ import {
     query,
     Timestamp,
 } from "firebase/firestore";
-import {db} from "../firebase.ts";
-import {useNavigate} from "react-router";
+import { db } from "../firebase.ts";
+import { useNavigate } from "react-router";
 import { useCallback, useEffect, useState } from "react";
 
 type Props = {
@@ -80,7 +80,7 @@ const Meta = styled.div`
     margin-bottom: 5px;
     font-size: 13px;
     color: #888;
-    
+
     strong {
         color: #333;
         margin-right: 10px;
@@ -94,7 +94,7 @@ const DeleteButton = styled.button`
     font-size: 12px;
     cursor: pointer;
     text-decoration: underline;
-    
+
     &:hover {
         color: #a71d2a;
     }
@@ -105,14 +105,14 @@ type CommentFormData = {
 };
 
 type CommentType = {
-    id: string,
-    content: string,
-    createdAt: Timestamp,
-    userId: string,
-    username: string,
-}
+    id: string;
+    content: string;
+    createdAt: Timestamp;
+    userId: string;
+    username: string;
+};
 
-function CommentContainer({ postId, currentUser}: Props) {
+function CommentContainer({ postId, currentUser }: Props) {
     const navigate = useNavigate();
     const [comments, setComments] = useState<CommentType[]>([]);
 
@@ -136,56 +136,48 @@ function CommentContainer({ postId, currentUser}: Props) {
                 content: data.content,
                 userId: currentUser.uid,
                 username: currentUser.email,
-                createdAt: Timestamp.now()
-            }
+                createdAt: Timestamp.now(),
+            };
 
-            await addDoc(
-                collection(db,"posts", postId, "comments"),
-                newComment,
-            )
-            reset();   // 폼에 입력되어져 있는 값 초기화
+            await addDoc(collection(db, "posts", postId, "comments"), newComment);
+            reset(); // 폼에 입력되어져 있는 값 초기화
 
             await fetchComments();
         } catch (e) {
             alert("댓글을 작성하지 못 했습니다.");
             console.log(e);
         }
-    }
+    };
 
     // 2-1. 댓글의 내용을 불러오기
     // 2-2. 댓글의 내용을 화면에 출력해주기
-    const fetchComments = useCallback(
-        async () => {
-            try {
-                // 데이터를 불러오고
-                const querySnapshot = query(
-                    collection(db, "posts", postId, "comments"),
-                    orderBy("createdAt", "desc")
-                );
-                const snapshot = await getDocs(querySnapshot);
+    const fetchComments = useCallback(async () => {
+        try {
+            // 데이터를 불러오고
+            const querySnapshot = query(
+                collection(db, "posts", postId, "comments"),
+                orderBy("createdAt", "desc"),
+            );
+            const snapshot = await getDocs(querySnapshot);
 
-                // 데이터를 가공하고
-                const loadedComments = snapshot.docs.map(
-                    (item) => {
-                        const data = item.data();
-                        return {
-                            id: item.id,
-                            content: data.content,
-                            createdAt: data.createdAt,
-                            userId: data.userId,
-                            username: data.username,
-                        }
-                    }
-                )
+            // 데이터를 가공하고
+            const loadedComments = snapshot.docs.map(item => {
+                const data = item.data();
+                return {
+                    id: item.id,
+                    content: data.content,
+                    createdAt: data.createdAt,
+                    userId: data.userId,
+                    username: data.username,
+                };
+            });
 
-                // 데이터를 state에 저장
-                setComments(loadedComments);
-            } catch (e) {
-                console.log(e);
-            }
-        },
-        [postId]
-    )
+            // 데이터를 state에 저장
+            setComments(loadedComments);
+        } catch (e) {
+            console.log(e);
+        }
+    }, [postId]);
 
     // 3-1. 댓글의 목록 중, 본인이 작성한 댓글에는 삭제 버튼 출력해주기
     // 3-2. 삭제 버튼 누르면 삭제하기
@@ -207,7 +199,7 @@ function CommentContainer({ postId, currentUser}: Props) {
         } catch (e) {
             alert("삭제에 실패하였습니다." + e);
         }
-    }
+    };
 
     return (
         <Section>
@@ -237,7 +229,9 @@ function CommentContainer({ postId, currentUser}: Props) {
                                 <strong>{item.username.split("@")[0]}</strong>
                                 <span>{item.createdAt.toDate().toLocaleDateString()}</span>
                             </div>
-                            <DeleteButton onClick={() => onDelete(item.id)}>삭제</DeleteButton>
+                            {currentUser && item.userId === currentUser.uid && (
+                                <DeleteButton onClick={() => onDelete(item.id)}>삭제</DeleteButton>
+                            )}
                         </Meta>
                         <div>{item.content}</div>
                     </CommentItem>
