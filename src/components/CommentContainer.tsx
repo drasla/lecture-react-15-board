@@ -2,7 +2,16 @@ import type { User } from "firebase/auth";
 import styled from "styled-components";
 import { ActionButton } from "../styles/styles.tsx";
 import { useForm } from "react-hook-form";
-import { addDoc, collection, getDocs, orderBy, query, Timestamp } from "firebase/firestore";
+import {
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDocs,
+    orderBy,
+    query,
+    Timestamp,
+} from "firebase/firestore";
 import {db} from "../firebase.ts";
 import {useNavigate} from "react-router";
 import { useCallback, useEffect, useState } from "react";
@@ -185,9 +194,24 @@ function CommentContainer({ postId, currentUser}: Props) {
         fetchComments();
     }, [fetchComments]);
 
+    const onDelete = async (id: string) => {
+        // confirm이 false이면, !를 붙여서 true로 변경한 뒤 return
+        if (!confirm("댓글을 삭제하시겠습니까?")) return;
+
+        try {
+            // posts라고 하는 collection 안에 comments라는 sub collection 중 id를 갖는 것을 삭제 요청
+            await deleteDoc(doc(db, "posts", postId, "comments", id));
+
+            // 목록 갱신
+            await fetchComments();
+        } catch (e) {
+            alert("삭제에 실패하였습니다." + e);
+        }
+    }
+
     return (
         <Section>
-            <CommentCount>댓글 0개</CommentCount>
+            <CommentCount>댓글 {comments.length}개</CommentCount>
             <Form onSubmit={handleSubmit(onSubmit)}>
                 <InputWrapper>
                     <Textarea
@@ -213,7 +237,7 @@ function CommentContainer({ postId, currentUser}: Props) {
                                 <strong>{item.username.split("@")[0]}</strong>
                                 <span>{item.createdAt.toDate().toLocaleDateString()}</span>
                             </div>
-                            <DeleteButton>삭제</DeleteButton>
+                            <DeleteButton onClick={() => onDelete(item.id)}>삭제</DeleteButton>
                         </Meta>
                         <div>{item.content}</div>
                     </CommentItem>
