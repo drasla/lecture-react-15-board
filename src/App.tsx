@@ -1,4 +1,3 @@
-import GlobalStyles from "./styles/GlobalStyles.tsx";
 import { RouterProvider } from "react-router";
 import router from "./router/router.tsx";
 import { useEffect, useState } from "react";
@@ -31,7 +30,6 @@ function App() {
 
     return (
         <>
-            <GlobalStyles />
             {isLoading ? (
                 <h1>인증 상태 확인중...</h1>
             ) : (

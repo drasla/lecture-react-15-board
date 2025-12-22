@@ -138,7 +138,7 @@ function BoardDetail({ currentUser }: Props) {
                             <ActionButton>수정</ActionButton>
                         </Link>
 
-                        <ActionButton style={{ backgroundColor: "#dc3545" }} onClick={onDelete}>
+                        <ActionButton onClick={onDelete}>
                             삭제
                         </ActionButton>
                     </>

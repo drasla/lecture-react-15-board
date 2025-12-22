@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
+import "./styles/index.css";
 
 // 개발 중 상황일 때 => build된 결과물이 아니라, vite를 통한 개발 중
 // StrictMode는 엄격한 규칙을 통해서 리액트가 동작되도록 함

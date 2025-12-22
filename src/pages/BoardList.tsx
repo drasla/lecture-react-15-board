@@ -54,7 +54,6 @@ const PageButton = styled.button<{
         color: #ccc;
         cursor: not-allowed;
     }
-    
 `;
 
 const POSTS_PER_PAGE = 5;
@@ -104,11 +103,6 @@ function BoardList() {
 
             // 4. 가공한 데이터를 setPosts에 저장하고
             setAllPosts(results);
-
-            // 11개의 글이 있다면, 한 화면에 5개를 보여준다면, 3개
-            // 17개의 글이 있다면, 한 화면에 5개를 보여준다면, 4개
-            // 전체글 수 / 5개 를 올림한 값 => Math.ceil
-            setTotalPages(Math.ceil(allPosts.length / POSTS_PER_PAGE));
         } catch (e) {
             console.log(e);
         } finally {
@@ -119,6 +113,13 @@ function BoardList() {
     useEffect(() => {
         fetchPosts();
     }, []);
+
+    useEffect(() => {
+        // 11개의 글이 있다면, 한 화면에 5개를 보여준다면, 3개
+        // 17개의 글이 있다면, 한 화면에 5개를 보여준다면, 4개
+        // 전체글 수 / 5개 를 올림한 값 => Math.ceil
+        setTotalPages(Math.ceil(allPosts.length / POSTS_PER_PAGE));
+    }, [allPosts]);
 
     useEffect(() => {
         // 1. 첫 시작 때 : fetchPosts가 동작이 되면서 allPosts의 값이 바뀌므로 그 때 동작해야 함
